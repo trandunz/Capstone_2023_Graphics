@@ -1,7 +1,20 @@
 #include "GameObject.h"
+#include "Camera.h"
+#include "TextureLoader.h"
 
-GLFWwindow* RenderWindow = nullptr;
+LightManager* lightManager = nullptr;
+DirectionalLight SunLight;
+Camera* mainCamera = nullptr;
+
+GLFWwindow* renderWindow = nullptr;
+
+KEYMAP MainKeyInput;
+
 float DeltaTime = 0.0f, LastFrame = 0.0f;
+
+/// GameObjects ///
+Mesh* SphereMesh = nullptr;
+GameObject* gameobject01 = nullptr;
 
 void InitGL();
 void InitGLFW();
@@ -13,7 +26,14 @@ void Render();
 void CalculateDeltaTime();
 
 int Cleanup();
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
+namespace Utilities {
+	glm::ivec2 SCREENSIZE = { 800,800 };
+	glm::vec2 mousePos;
+	float mouseSensitivity = 10.0f;
+}
 int main()
 {
 	InitGLFW();
@@ -33,6 +53,7 @@ void InitGL()
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
@@ -48,20 +69,45 @@ void InitGLFW()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	RenderWindow = glfwCreateWindow(800, 800, "Title", NULL, NULL);
+	renderWindow = glfwCreateWindow(Utilities::SCREENSIZE.x, Utilities::SCREENSIZE.y, "Capstone Research Demo", NULL, NULL);
 
-	glfwMakeContextCurrent(RenderWindow);
+	glfwMakeContextCurrent(renderWindow);
+	glfwSetCursorPosCallback(renderWindow, cursor_position_callback);
+	glfwSetKeyCallback(renderWindow, key_callback);
+
+	glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void Start()
 {
+	//Initalise Camera
+	mainCamera = new Camera(Utilities::SCREENSIZE);
+
+	//Initalise LightManager
+	lightManager = new LightManager(*mainCamera);
+	lightManager->CreateDirectionalLight(SunLight);
+
+	//Create Mesh
+	SphereMesh = new Mesh(SHAPE::SPHERE, GL_BACK); // NOTE : Convert to Static meshs later
+
+	//Initalise Gameobject
+	gameobject01 = new GameObject(*mainCamera, glm::vec3{0,0,-5});
+	gameobject01->SetMesh(SphereMesh);
+	gameobject01->SetActiveCamera(*mainCamera);
+	gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("CheekyDog.png") });
+	gameobject01->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+
+
 }
 
 void Update()
 {
-	while (glfwWindowShouldClose(RenderWindow) == false)
+	while (glfwWindowShouldClose(renderWindow) == false)
 	{
 		CalculateDeltaTime();
+		mainCamera->Movement(DeltaTime);
+		gameobject01->Update(DeltaTime);
+		mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
 		glfwPollEvents();
 		Render();
 	}
@@ -70,8 +116,8 @@ void Update()
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glfwSwapBuffers(RenderWindow);
+	gameobject01->Draw();
+	glfwSwapBuffers(renderWindow);
 }
 
 void CalculateDeltaTime()
@@ -83,8 +129,22 @@ void CalculateDeltaTime()
 
 int Cleanup()
 {
-	glfwDestroyWindow(RenderWindow);
+	glfwDestroyWindow(renderWindow);
+	delete(mainCamera);
 	glfwTerminate();
 
 	return 0;
+}
+
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	MainKeyInput[key] = action;
+	
+	mainCamera->Movement_Capture(MainKeyInput);
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	Utilities::mousePos = { xpos * Utilities::mouseSensitivity,ypos * Utilities::mouseSensitivity };
 }

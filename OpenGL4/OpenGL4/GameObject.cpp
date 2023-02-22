@@ -267,11 +267,11 @@ void GameObject::SetBlinnFong3DUniforms()
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
-        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "Texture0", 0);
+        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "ImageTexture0", 0);
     }
 
     // Set Global Ambient Colour And Strength
-    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "AmbientStrength", 0.15f);
+    ShaderLoader::SetUniform1f(std::move(m_ShaderID), "AmbientStrength", 0.5f);
     ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "AmbientColor", { 1.0f,1.0f,1.0f });
 
     // Set Shininess
