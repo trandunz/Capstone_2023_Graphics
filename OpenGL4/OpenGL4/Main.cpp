@@ -50,8 +50,6 @@ void InitGL()
 	if (glewInit() != GLEW_OK)
 		exit(0);
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 	glEnable(GL_BLEND);
@@ -74,7 +72,7 @@ void InitGLFW()
 	glfwMakeContextCurrent(renderWindow);
 	glfwSetCursorPosCallback(renderWindow, cursor_position_callback);
 	glfwSetKeyCallback(renderWindow, key_callback);
-
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -83,21 +81,25 @@ void Start()
 	//Initalise Camera
 	mainCamera = new Camera(Utilities::SCREENSIZE);
 
-	//Initalise LightManager
-	lightManager = new LightManager(*mainCamera);
-	lightManager->CreateDirectionalLight(SunLight);
-
 	//Create Mesh
 	SphereMesh = new Mesh(SHAPE::SPHERE, GL_BACK); // NOTE : Convert to Static meshs later
 
+
+	//Initalise LightManager
+	lightManager = new LightManager(*mainCamera, 1);
+	lightManager->SetLightMesh(SphereMesh);
+	lightManager->CreatePointLight(
+		{
+			{0,2,0}
+		});
+
 	//Initalise Gameobject
-	gameobject01 = new GameObject(*mainCamera, glm::vec3{0,0,-5});
+	gameobject01 = new GameObject(*mainCamera, glm::vec3{0,0,0});
 	gameobject01->SetMesh(SphereMesh);
 	gameobject01->SetActiveCamera(*mainCamera);
-	gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("CheekyDog.png") });
+	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("CheekyDog.png") });
 	gameobject01->SetShader("Normals3D.vert", "BlinnFong3D.frag");
-
-
+	gameobject01->SetLightManager(*lightManager);
 }
 
 void Update()
@@ -117,6 +119,7 @@ void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	gameobject01->Draw();
+	lightManager->Draw();
 	glfwSwapBuffers(renderWindow);
 }
 

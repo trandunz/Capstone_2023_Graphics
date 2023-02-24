@@ -264,7 +264,7 @@ void GameObject::SetBlinnFong3DUniforms()
     // Apply Texture
     if (m_ActiveTextures.size() > 0)
     {
-        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", 1);
+        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "TextureCount", m_ActiveTextures.size());
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_ActiveTextures[0].ID);
         ShaderLoader::SetUniform1i(std::move(m_ShaderID), "ImageTexture0", 0);
@@ -284,7 +284,7 @@ void GameObject::SetBlinnFong3DUniforms()
     {
         // Set Point Light Uniforms From Light Manager
         std::vector<PointLight>& pointLights = m_LightManager->GetPointLights();
-        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "NumberOfPointLights", (int)pointLights.size());
+        ShaderLoader::SetUniform1i(std::move(m_ShaderID), "PointLightCount", (int)pointLights.size());
         for (unsigned i = 0; i < pointLights.size(); i++)
         {
             ShaderLoader::SetUniform3fv(std::move(m_ShaderID), "PointLights[" + std::to_string(i) + "].Position", pointLights[i].Position);

@@ -117,7 +117,7 @@ void Mesh::CreateShapeVertices(SHAPE _shape)
 	}
 	case SHAPE::SPHERE:
 	{
-		GenerateSphereVertices(36);
+		GenerateSphereVertices(12);
 		break;
 	}
 	default:
@@ -187,7 +187,7 @@ void Mesh::CreateShapeIndices(SHAPE _shape)
 	}
 	case SHAPE::SPHERE:
 	{
-		GenerateSphereIndices(36);
+		GenerateSphereIndices(12);
 		break;
 	}
 	default:

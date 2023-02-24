@@ -10,12 +10,13 @@ uniform mat4 ModelMatrix;
 
 out vec2 FragTexCoords;
 out vec3 FragNormal;
-
+out vec3 FragPosition;
 
 void main()
 {
 	gl_Position = PVMMatrix * vec4(Position, 1.0f);
 
 	FragTexCoords = TexCoords;
-	FragNormal = mat3(transpose(inverse(ModelMatrix))) * Normals;
+	FragNormal = normalize(mat3(transpose(inverse(ModelMatrix))) * Normals);
+	FragPosition = vec3(ModelMatrix * vec4(Position, 1.0f));
 }
