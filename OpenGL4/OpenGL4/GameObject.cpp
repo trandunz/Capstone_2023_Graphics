@@ -112,6 +112,11 @@ void GameObject::Draw()
                 SetBlinnFong3DUniforms();
                 SetRimLighingUniforms();
             }
+            else if (m_ShaderLocation.fragShader == "BlinnFong3D_CelShaded.frag")
+            {
+                SetBlinnFong3DUniforms();
+                SetRimLighingUniforms();
+            }
             // Else if Frag Shader is Reflection
             else if (m_ShaderLocation.fragShader == "Reflection.frag")
             {

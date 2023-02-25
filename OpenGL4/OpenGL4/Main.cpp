@@ -1,7 +1,10 @@
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+
 #include "GameObject.h"
 #include "Camera.h"
 #include "TextureLoader.h"
-
 LightManager* lightManager = nullptr;
 DirectionalLight SunLight;
 Camera* mainCamera = nullptr;
@@ -12,21 +15,27 @@ KEYMAP MainKeyInput;
 
 float DeltaTime = 0.0f, LastFrame = 0.0f;
 
+ImVec4 PointLightColor;
+
 /// GameObjects ///
 Mesh* SphereMesh = nullptr;
 GameObject* gameobject01 = nullptr;
 
 void InitGL();
 void InitGLFW();
+void Initimgui();
 
 void Start();
 void Update();
 void Render();
 
+void ImGUIRender();
+
 void CalculateDeltaTime();
 
 int Cleanup();
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void SwitchInputModes(KEYMAP& _keymap);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 namespace Utilities {
@@ -38,6 +47,7 @@ int main()
 {
 	InitGLFW();
 	InitGL();
+	Initimgui();
 
 	Start();
 	Update();
@@ -76,6 +86,34 @@ void InitGLFW()
 	glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
+void Initimgui()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(renderWindow, true);
+	ImGui_ImplOpenGL3_Init("#version 460");
+
+}
+
+void ImGUIRender() {
+	//Start of ImGUI Frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("Debug Window");
+	
+	ImGui::ColorPicker4("PointLight Color", (float*)&PointLightColor);
+	ImGui::Text("hello world");
+	
+	ImGui::End();
+	ImGui::Render();
+
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 void Start()
 {
 	//Initalise Camera
@@ -90,15 +128,18 @@ void Start()
 	lightManager->SetLightMesh(SphereMesh);
 	lightManager->CreatePointLight(
 		{
-			{0,2,0}
+			{0.25f,0.5f,1.0f},
+			{0.5f,0.15f,0.15f},
+
 		});
+	
 
 	//Initalise Gameobject
 	gameobject01 = new GameObject(*mainCamera, glm::vec3{0,0,0});
 	gameobject01->SetMesh(SphereMesh);
 	gameobject01->SetActiveCamera(*mainCamera);
 	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("CheekyDog.png") });
-	gameobject01->SetShader("Normals3D.vert", "BlinnFong3D.frag");
+	gameobject01->SetShader("Normals3D.vert", "BlinnFong3D_CelShaded.frag");
 	gameobject01->SetLightManager(*lightManager);
 }
 
@@ -107,9 +148,12 @@ void Update()
 	while (glfwWindowShouldClose(renderWindow) == false)
 	{
 		CalculateDeltaTime();
+
+		lightManager->GetPointLights()[0].Color = glm::vec4{ PointLightColor.x, PointLightColor.y,PointLightColor.z, PointLightColor.w };
 		mainCamera->Movement(DeltaTime);
 		gameobject01->Update(DeltaTime);
 		mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
+		
 		glfwPollEvents();
 		Render();
 	}
@@ -118,8 +162,11 @@ void Update()
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	gameobject01->Draw();
 	lightManager->Draw();
+	ImGUIRender();
+
 	glfwSwapBuffers(renderWindow);
 }
 
@@ -132,6 +179,11 @@ void CalculateDeltaTime()
 
 int Cleanup()
 {
+	//Cleanup ImGui 
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 	glfwDestroyWindow(renderWindow);
 	delete(mainCamera);
 	glfwTerminate();
@@ -145,8 +197,34 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	MainKeyInput[key] = action;
 	
 	mainCamera->Movement_Capture(MainKeyInput);
+	SwitchInputModes(MainKeyInput);
 }
+void SwitchInputModes(KEYMAP& _keymap)
+{
+	for (auto& key : (_keymap))
+	{
+		if (key.second == true)
+		{
+			switch (key.first)
+			{
+			case GLFW_KEY_TAB:
+				if (glfwGetInputMode(renderWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+				{
+					glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
+				}
+				else
+				{ 
+					glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+}
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	Utilities::mousePos = { xpos * Utilities::mouseSensitivity,ypos * Utilities::mouseSensitivity };

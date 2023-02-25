@@ -162,7 +162,7 @@ private:
     Camera* m_ActiveCamera{ nullptr };
     GLuint m_UnlitMeshShaderID{ 0 };
     Mesh* m_LightMesh{nullptr};
-    int m_MaxPointLights{1};
+    int m_MaxPointLights{2};
     int m_MaxDirectionalLights{ 1 };
     int m_MaxSpotLights{ 1 };
     std::vector<PointLight> m_PointLights{};

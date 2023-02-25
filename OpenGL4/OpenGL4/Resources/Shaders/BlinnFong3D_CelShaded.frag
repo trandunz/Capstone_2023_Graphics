@@ -5,6 +5,7 @@ in vec3 FragNormal;
 in vec3 FragPosition;
 
 #define MAX_POINT_LIGHTS 4
+#define MAX_COLOR_TONES 3
 
 struct PointLight
 {
@@ -65,7 +66,7 @@ vec3 CalculatePointLight(PointLight _pointLight)
 {
     vec3 lightDir = normalize(FragPosition - _pointLight.Position);
 
-    float strength = max(dot(FragNormal, -lightDir), 0.0f);
+    float strength = max(dot(FragNormal, -lightDir), 1.0f);
     vec3 diffuseLight = strength * _pointLight.Color.rgb;
 
     vec3 halfwayVector = normalize(-lightDir + ReverseViewDir);
@@ -83,14 +84,14 @@ vec3 ApplyCellShading(vec3 _lighting, vec3 _lightDir)
 
     if(nl > 0.5f)
     {
-        return _lighting * vec3(1.0f, 1.0f, 1.0f);
+        return _lighting * 0.6f; 
     }
     else if (nl > 0.0f)
     {
-        return _lighting * vec3(0.33f, 0.33f, 0.33f);
+        return _lighting * 0.45f; 
     }
     else
     {
-        return _lighting * vec3(0.0f,0.0f,0.0f);
+        return _lighting * 0.35f;
     }
 }
