@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "TextureLoader.h"
+
 LightManager* lightManager = nullptr;
 DirectionalLight SunLight;
 Camera* mainCamera = nullptr;
@@ -60,8 +61,6 @@ void InitGL()
 	if (glewInit() != GLEW_OK)
 		exit(0);
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
@@ -120,7 +119,7 @@ void Start()
 	mainCamera = new Camera(Utilities::SCREENSIZE);
 
 	//Create Mesh
-	SphereMesh = new Mesh(SHAPE::SPHERE, GL_BACK); // NOTE : Convert to Static meshs later
+	SphereMesh = new Mesh("globe.obj", GL_CCW); // NOTE : Convert to Static meshs later
 
 
 	//Initalise LightManager
@@ -128,19 +127,25 @@ void Start()
 	lightManager->SetLightMesh(SphereMesh);
 	lightManager->CreatePointLight(
 		{
-			{0.25f,0.5f,1.0f},
+			{0.0f,3.0f,-4.0f},
 			{0.5f,0.15f,0.15f},
 
 		});
 	
+	StaticShader::Shaders.insert_or_assign("CellShading", new Shader{ 
+		{
+			ShaderInfo{GL_VERTEX_SHADER, "Normals3D.vert"},
+			ShaderInfo{GL_FRAGMENT_SHADER, "BlinnFong3D_CelShaded.frag"},
+		}
+	, nullptr });
 
-	//Initalise Gameobject
-	gameobject01 = new GameObject(*mainCamera, glm::vec3{0,0,0});
+	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,0,-5 });
+
 	gameobject01->SetMesh(SphereMesh);
 	gameobject01->SetActiveCamera(*mainCamera);
-	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("CheekyDog.png") });
-	gameobject01->SetShader("Normals3D.vert", "BlinnFong3D_CelShaded.frag");
+	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("globe.jpg") });
 	gameobject01->SetLightManager(*lightManager);
+	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"]});
 }
 
 void Update()
@@ -179,6 +184,13 @@ void CalculateDeltaTime()
 
 int Cleanup()
 {
+	for (auto& shader : StaticShader::Shaders)
+	{
+		delete shader.second;
+		shader.second = nullptr;
+	}
+	StaticShader::Shaders.clear();
+
 	//Cleanup ImGui 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

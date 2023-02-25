@@ -16,7 +16,7 @@ Skybox::Skybox(Camera* _activeCamera, Texture _cubemapTexture)
 	m_CubemapTexture = _cubemapTexture;
 	SetScale({1000,1000,1000});
 
-	m_ShaderID = ShaderLoader::CreateShader("Skybox.vert","Skybox.frag");
+	//m_ShaderID = ShaderLoader::CreateShader("Skybox.vert","Skybox.frag");
 
 	CreateInvertedCubeVAO();
 }

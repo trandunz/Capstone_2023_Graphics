@@ -10,12 +10,73 @@
 
 #include "Mesh.h"
 
+
 Mesh::Mesh(SHAPE _shape, GLenum _windingOrder)
 {
 	m_WindingOrder = _windingOrder;
 
 	CreateShapeVertices(_shape);
 	CreateShapeIndices(_shape);
+	CreateAndInitializeBuffers();
+}
+
+Mesh::Mesh(std::string _modelName, GLenum _windingOrder)
+{
+	// read file via ASSIMP
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(("Resources/Models/" + _modelName).c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+	// check for errors
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	{
+		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+		return;
+	}
+
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+	{
+		aiMesh* mesh = scene->mMeshes[i];
+
+		std::vector<Vertex> vertices;
+		std::vector<unsigned int> indices;
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		{
+			Vertex vertex;
+			glm::vec3 vector;
+			vector.x = mesh->mVertices[i].x;
+			vector.y = mesh->mVertices[i].y;
+			vector.z = mesh->mVertices[i].z;
+			vertex.position = vector;
+			if (mesh->HasNormals())
+			{
+				vector.x = mesh->mNormals[i].x;
+				vector.y = mesh->mNormals[i].y;
+				vector.z = mesh->mNormals[i].z;
+				vertex.normals = vector;
+			}
+			if (mesh->mTextureCoords[0])
+			{
+				glm::vec2 vec;
+				vec.x = mesh->mTextureCoords[0][i].x;
+				vec.y = mesh->mTextureCoords[0][i].y;
+				vertex.texCoords = vec;
+			}
+			else
+				vertex.texCoords = glm::vec2(0.0f, 0.0f);
+
+			vertices.push_back(vertex);
+		}
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		{
+			aiFace face = mesh->mFaces[i];
+			for (unsigned int j = 0; j < face.mNumIndices; j++)
+				indices.push_back(face.mIndices[j]);
+		}
+
+		m_Vertices = vertices;
+		m_Indices = indices;
+	}
+
+	
 	CreateAndInitializeBuffers();
 }
 

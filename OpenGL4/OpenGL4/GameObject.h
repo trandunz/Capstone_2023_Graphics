@@ -10,6 +10,7 @@
 
 #pragma once
 #include "LightManager.h"
+#include "StaticShader.h"
 
 class GameObject
 {
@@ -130,7 +131,7 @@ public:
 	/// Sets the shader program to use for rendering
 	/// </summary>
 	/// <param name="_newShader"></param>
-	void SetShader(const char* _vertexSource, const char* _fragmentSource);
+	void SetShaders(std::vector<Shader> _shaders);
 	/// <summary>
 	/// Returns the current shader program used for rendering
 	/// </summary>
@@ -154,48 +155,14 @@ public:
 	/// <param name="_skyboxTexture"></param>
 	void SetSkyboxTexture(Texture _skyboxTexture);
 
-	/// <summary>
-	/// Toggle Rim Lighting If Blinn-Phong Shader Enabled
-	/// </summary>
-	/// <param name="_rimLighting"></param>
-	void SetRimLighting(bool _rimLighting);
+	Transform m_Transform{};
 private:
 
-	/// <summary>
-	/// Handles Setting Blinn-Phong Shader Uniforms.
-	/// Requres Blinn-Phong Shader Active
-	/// </summary>
-	void SetBlinnFong3DUniforms();
-
-	/// <summary>
-	/// Handles setting Rim Lighting Shader Uniforms (Combine With Blinn-Phong To Work)
-	/// Requires Blinn-Phone Shader Active
-	/// </summary>
-	void SetRimLighingUniforms();
-
-	/// <summary>
-	/// Sets Reflection Specific Shader Uniforms
-	/// </summary>
-	void SetReflectionUniforms();
-
-	/// <summary>
-	/// Set Reflection Map Specific Shader Uniforms.
-	/// Requires: Blinn-Phong_Reflection or Reflection Map Shaders
-	/// </summary>
-	void SetReflectionMapUniforms();
-
-	/// <summary>
-	/// Sets Uniforms for Use With Normals3D.vert
-	/// </summary>
-	void SetNormals3DVertUniforms();
-
-	/// <summary>
-	/// Set Uniforms For Single Texture
-	/// </summary>
-	void SetSingleTextureUniforms();
+	void SetCellShadingUniforms();
 
 	bool m_RimLighting = false;
 	std::vector<Texture> m_ActiveTextures{};
+	std::vector<Shader> m_Shaders{};
 	GLuint m_ShaderID{0};
 	ShaderProgramLocation m_ShaderLocation{nullptr,nullptr};
 	glm::vec4 m_Input{};
@@ -203,7 +170,7 @@ private:
 	Mesh* m_Mesh = nullptr;
 	Camera* m_ActiveCamera = nullptr;
 	LightManager* m_LightManager{ nullptr };
-	Transform m_Transform{};
+
 	Texture m_SkyboxTexture;
 };
 

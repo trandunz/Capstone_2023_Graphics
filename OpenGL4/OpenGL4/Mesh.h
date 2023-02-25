@@ -11,6 +11,9 @@
 #pragma once
 #include "Helper.h"
 #include "ShaderLoader.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 class Mesh
 {
 public:
@@ -19,6 +22,8 @@ public:
 	/// </summary>
 	/// <param name="_shape"></param>
 	Mesh(SHAPE _shape, GLenum _windingOrder);
+
+	Mesh(std::string _modelName, GLenum _windingOrder);
 	/// <summary>
 	/// Construct a 2D Mesh with the given number of sides
 	/// </summary>

@@ -27,7 +27,7 @@ TextLabel::TextLabel(glm::ivec2& _windowSize, std::string_view&& _text, Font& _l
 	// Assign Projection Matrix with near = 0 and far = 10 (might be overkill to have 10)
 	m_ProjectionMatrix = glm::ortho(0.0f, (float)m_WindowSize->x, 0.0f, (float)m_WindowSize->y, 0.0f, 10.0f);
 	// Create or assign the texlabel shader program
-	m_ProgramID = ShaderLoader::CreateShader("TextLabel.vert", "TextLabel.frag");
+	//m_ProgramID = ShaderLoader::CreateShader("TextLabel.vert", "TextLabel.frag");
 
 	// Generate the vertex array, vertex buffer, and index buffer
 	glGenVertexArrays(1, &m_VertexArrayID);

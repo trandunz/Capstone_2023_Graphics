@@ -126,7 +126,7 @@ void ShaderLoader::SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _lo
     glUniformMatrix4fv(glGetUniformLocation(_program, _location.data()), 1, GL_FALSE, glm::value_ptr(_value));
 }
 
-GLuint ShaderLoader::CompileShader(GLenum&& _type, std::string&& _source)
+GLuint ShaderLoader::CompileShader(GLenum _type, std::string&& _source)
 {
     // Check If there Is Already A Shader With The Same Specifications Created
     for (auto& item : m_Shaders)

@@ -30,7 +30,7 @@ LightManager::~LightManager()
 
 void LightManager::Draw()
 {
-	 //If a Mesh Has Been Assigned
+	//If a Mesh Has Been Assigned
 	if (m_LightMesh)
 	{
 		// For Each PointLight, Draw An Unlit Mesh With The Same Color

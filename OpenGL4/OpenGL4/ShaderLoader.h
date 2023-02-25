@@ -114,14 +114,14 @@ public:
     /// <param name="_location"></param>
     /// <param name="_value"></param>
     static void SetUniformMatrix4fv(GLuint&& _program, std::string_view&& _location, glm::mat4 _value);
-private:
+
     /// <summary>
     /// Compiles A Shader Of A Given Type And Source And Returns Its ID.
     /// </summary>
     /// <param name="_type"></param>
     /// <param name="_source"></param>
     /// <returns></returns>
-    static GLuint CompileShader(GLenum&& _type, std::string&& _source);
+    static GLuint CompileShader(GLenum _type, std::string&& _source);
 
     /// <summary>
     /// Passes A File At The Given Adress Into A String And Returns It.
@@ -129,6 +129,8 @@ private:
     /// <param name="_fileAddress"></param>
     /// <returns></returns>
     static std::string PassFileToString(const std::string& _fileName);
+private:
+
 
     inline static std::vector<std::pair<ShaderProgramLocation, GLuint>> m_ShaderPrograms;
     inline static std::vector<std::pair<std::string, GLuint>> m_Shaders;
