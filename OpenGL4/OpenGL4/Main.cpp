@@ -16,10 +16,14 @@ KEYMAP MainKeyInput;
 
 float DeltaTime = 0.0f, LastFrame = 0.0f;
 
+/// ImGui Variables ///
 ImVec4 PointLightColor = ImVec4{0.15f,0.5f,0.0f,1.0f};
+
+bool isCursorEnabled = false;
 
 /// GameObjects ///
 Mesh* SphereMesh = nullptr;
+Mesh* LinkMesh = nullptr;
 GameObject* gameobject01 = nullptr;
 
 void InitGL();
@@ -119,15 +123,15 @@ void Start()
 	mainCamera = new Camera(Utilities::SCREENSIZE);
 
 	//Create Mesh
-	SphereMesh = new Mesh("globe.obj", GL_CCW); // NOTE : Convert to Static meshs later
-
+	SphereMesh = new Mesh(SHAPE::SPHERE, GL_BACK); // NOTE : Convert to Static meshs later
+	LinkMesh = new Mesh("link.obj", GL_BACK);
 
 	//Initalise LightManager
 	lightManager = new LightManager(*mainCamera, 1);
 	lightManager->SetLightMesh(SphereMesh);
 	lightManager->CreatePointLight(
 		{
-			{0.0f,3.0f,-4.0f},
+			{2.0f,5.0f, -3.0f},
 			{0.5f,0.15f,0.15f},
 
 		});
@@ -141,11 +145,12 @@ void Start()
 
 	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,0,-5 });
 
-	gameobject01->SetMesh(SphereMesh);
+	gameobject01->SetMesh(LinkMesh);
 	gameobject01->SetActiveCamera(*mainCamera);
 	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("globe.jpg") });
 	gameobject01->SetLightManager(*lightManager);
 	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"]});
+	gameobject01->SetScale(glm::vec3{ 0.05f,0.05f,0.05f });
 }
 
 void Update()
@@ -157,7 +162,9 @@ void Update()
 		lightManager->GetPointLights()[0].Color = glm::vec4{ PointLightColor.x, PointLightColor.y,PointLightColor.z, PointLightColor.w };
 		mainCamera->Movement(DeltaTime);
 		gameobject01->Update(DeltaTime);
-		mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
+
+		if(isCursorEnabled == false)
+			mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
 		
 		glfwPollEvents();
 		Render();
@@ -223,11 +230,12 @@ void SwitchInputModes(KEYMAP& _keymap)
 				if (glfwGetInputMode(renderWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
 				{
 					glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
+					isCursorEnabled = true;
 				}
 				else
 				{ 
 					glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					isCursorEnabled = false;
 				}
 				break;
 
