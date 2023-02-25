@@ -15,7 +15,7 @@ KEYMAP MainKeyInput;
 
 float DeltaTime = 0.0f, LastFrame = 0.0f;
 
-ImVec4 PointLightColor;
+ImVec4 PointLightColor = ImVec4{0.15f,0.5f,0.0f,1.0f};
 
 /// GameObjects ///
 Mesh* SphereMesh = nullptr;
@@ -82,7 +82,7 @@ void InitGLFW()
 	glfwMakeContextCurrent(renderWindow);
 	glfwSetCursorPosCallback(renderWindow, cursor_position_callback);
 	glfwSetKeyCallback(renderWindow, key_callback);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
