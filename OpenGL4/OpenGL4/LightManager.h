@@ -10,7 +10,7 @@
 
 #pragma once
 #include "Helper.h"
-#include "Mesh.h"
+#include "StaticMesh.h"
 #include "Camera.h"
 
 /// <summary>

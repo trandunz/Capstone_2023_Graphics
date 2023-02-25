@@ -165,6 +165,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="StaticMesh.cpp" />
     <ClCompile Include="StaticShader.cpp" />
     <ClCompile Include="TextLabel.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="StaticShader.h" />
     <ClInclude Include="TextLabel.h" />
     <ClInclude Include="TextureLoader.h" />

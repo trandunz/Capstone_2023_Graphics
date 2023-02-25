@@ -39,7 +39,7 @@ void LightManager::Draw()
 		{
 			ShaderLoader::SetUniformMatrix4fv(std::move(m_UnlitMeshShaderID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * glm::translate(glm::mat4(1), light.Position));
 			ShaderLoader::SetUniform3fv(std::move(m_UnlitMeshShaderID), "Color", light.Color);
-			m_LightMesh->Draw();
+			StaticMesh::Meshes[0]->Draw();
 		}
 		glUseProgram(0);
 	}

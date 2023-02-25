@@ -16,10 +16,9 @@ KEYMAP MainKeyInput;
 
 float DeltaTime = 0.0f, LastFrame = 0.0f;
 
-ImVec4 PointLightColor = ImVec4{0.15f,0.5f,0.0f,1.0f};
+ImVec4 PointLightColor = ImVec4{1,1,1,1.0f};
 
-/// GameObjects ///
-Mesh* SphereMesh = nullptr;
+
 GameObject* gameobject01 = nullptr;
 
 void InitGL();
@@ -115,20 +114,21 @@ void ImGUIRender() {
 
 void Start()
 {
+	StaticMesh::Meshes.push_back(new Mesh(SHAPE::SPHERE, GL_CCW));
+	StaticMesh::Meshes.push_back(new Mesh(SHAPE::CUBE, GL_CCW));
+	StaticMesh::Meshes.push_back(new Mesh(SHAPE::PYRAMID, GL_CCW));
+	StaticMesh::Meshes.push_back(new Mesh("link.obj"));
+
 	//Initalise Camera
 	mainCamera = new Camera(Utilities::SCREENSIZE);
 
-	//Create Mesh
-	SphereMesh = new Mesh("globe.obj", GL_CCW); // NOTE : Convert to Static meshs later
-
-
 	//Initalise LightManager
 	lightManager = new LightManager(*mainCamera, 1);
-	lightManager->SetLightMesh(SphereMesh);
+	lightManager->SetLightMesh(StaticMesh::Meshes[0]);
 	lightManager->CreatePointLight(
 		{
-			{0.0f,3.0f,-4.0f},
-			{0.5f,0.15f,0.15f},
+			{1.0f,1.0f,-7.0f},
+			{1,1,1},
 
 		});
 	
@@ -139,11 +139,12 @@ void Start()
 		}
 	, nullptr });
 
-	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,0,-5 });
+	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,-1,-9 });
 
-	gameobject01->SetMesh(SphereMesh);
+	gameobject01->SetMesh(StaticMesh::Meshes[3]);
+	gameobject01->SetScale({ 0.015, 0.015 ,0.015 });
 	gameobject01->SetActiveCamera(*mainCamera);
-	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("globe.jpg") });
+	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("T_Skin_D.jpg") });
 	gameobject01->SetLightManager(*lightManager);
 	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"]});
 }
@@ -190,6 +191,12 @@ int Cleanup()
 		shader.second = nullptr;
 	}
 	StaticShader::Shaders.clear();
+	for (auto& mesh : StaticMesh::Meshes)
+	{
+		delete mesh;
+		mesh = nullptr;
+	}
+	StaticMesh::Meshes.clear();
 
 	//Cleanup ImGui 
 	ImGui_ImplOpenGL3_Shutdown();

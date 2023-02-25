@@ -23,7 +23,9 @@ public:
 	/// <param name="_shape"></param>
 	Mesh(SHAPE _shape, GLenum _windingOrder);
 
-	Mesh(std::string _modelName, GLenum _windingOrder);
+	Mesh(std::vector<Vertex> _vertices, std::vector<unsigned> _indices, std::vector<Texture> _textures);
+
+	Mesh(std::string _modelName);
 	/// <summary>
 	/// Construct a 2D Mesh with the given number of sides
 	/// </summary>
@@ -82,8 +84,15 @@ private:
 	/// <param name="_fidelity"></param>
 	void GenerateSphereIndices(int _fidelity);
 
+	void ProcessNode(aiNode* node, const aiScene* scene);
+	Mesh* ProcessMesh(aiMesh* mesh, const aiScene* scene);
+	std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	
+
 	std::vector<unsigned int> m_Indices{};
 	std::vector<Vertex> m_Vertices{};
+	std::vector<Mesh*> m_Meshes{};
+	std::vector<Texture> m_Textures;
 
 	GLuint m_VertexArrayID{ 0 };
 	GLuint m_VertexBufferID{ 0 };
