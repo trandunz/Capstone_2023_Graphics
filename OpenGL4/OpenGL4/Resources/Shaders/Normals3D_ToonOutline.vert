@@ -20,7 +20,7 @@ void main()
 	FragNormal = normalize(mat3(transpose(inverse(ModelMatrix))) * Normals);
 	FragPosition = vec3(ModelMatrix * vec4(Position, 1.0f));
 
-	vec4 newPosition = vec4(FragPosition + FragNormal * 0.1f, 1.0f);
+	vec4 newPosition = vec4(Position + FragNormal * OutlineWidth, 1.0f);
 	gl_Position = PVMMatrix * newPosition;
 
 }

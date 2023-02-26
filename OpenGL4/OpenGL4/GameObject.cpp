@@ -250,7 +250,8 @@ void GameObject::SetSkyboxTexture(Texture _skyboxTexture)
 void GameObject::SetToonOutlineUniforms()
 {
     ShaderLoader::SetUniformMatrix4fv(std::move(StaticShader::Shaders["ToonOutline"]->ID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
-    ShaderLoader::SetUniform1f(std::move(StaticShader::Shaders["ToonOutline"]->ID), "OutlineWidth", 1.5f);
+    ShaderLoader::SetUniformMatrix4fv(std::move(StaticShader::Shaders["ToonOutline"]->ID), "ModelMatrix", m_Transform.transform);
+    ShaderLoader::SetUniform1f(std::move(StaticShader::Shaders["ToonOutline"]->ID), "OutlineWidth", 0.2f);
     ShaderLoader::SetUniform3fv(std::move(StaticShader::Shaders["ToonOutline"]->ID), "Color", glm::vec4(0.0f,0.0f,0.0f,1.0f));
 }
 
