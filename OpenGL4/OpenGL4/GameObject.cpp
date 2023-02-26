@@ -20,6 +20,11 @@ GameObject::GameObject(Camera& _camera, glm::vec3 _position)
     {
         SetCellShadingUniforms();
     };
+    StaticShader::Shaders["ToonOutline"]->UniformsFunction = [this]()
+    {
+        SetToonOutlineUniforms();
+    };
+
 }
 
 GameObject::~GameObject()
@@ -45,19 +50,19 @@ void GameObject::Movement_WASDEQ(KEYMAP& _keymap)
     {
         if (key.second)
         {
-            if (key.first == GLFW_KEY_W)
+            if (key.first == GLFW_KEY_UP)
             {
                 m_Input.z -= 1.0f;
             }
-            if (key.first == GLFW_KEY_A)
+            if (key.first == GLFW_KEY_LEFT)
             {
                 m_Input.x -= 1.0f;
             }
-            if (key.first == GLFW_KEY_S)
+            if (key.first == GLFW_KEY_DOWN)
             {
                 m_Input.z += 1.0f;
             }
-            if (key.first == GLFW_KEY_D)
+            if (key.first == GLFW_KEY_RIGHT)
             {
                 m_Input.x += 1.0f;
             }
@@ -97,17 +102,35 @@ void GameObject::Draw()
 {
     if (m_Mesh)
     {
-        // Bind shader
-        for (auto& shader : m_Shaders)
-        {
-            shader.Bind();
-        }
 
+        //// Bind shader
+        //for (auto& shader : m_Shaders)
+        //{
+        //    shader.Bind();
+        //}
+        
+        //Bind normal Shader
+        //Write to StencilBuffer
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        m_Shaders[0].Bind();
         // Draw the mesh
         m_Mesh->Draw();
+        m_Shaders[0].UnBind();
 
-        // Unbind
-        glUseProgram(0);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        //Bind Second Shader / Single Color Shader
+        m_Shaders[1].Bind();
+
+        m_Mesh->Draw();
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glEnable(GL_DEPTH_TEST);
+        m_Shaders[1].UnBind();
+
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
@@ -222,6 +245,13 @@ void GameObject::SetLightManager(LightManager& _lightManager)
 void GameObject::SetSkyboxTexture(Texture _skyboxTexture)
 {
     m_SkyboxTexture = _skyboxTexture;
+}
+
+void GameObject::SetToonOutlineUniforms()
+{
+    ShaderLoader::SetUniformMatrix4fv(std::move(StaticShader::Shaders["ToonOutline"]->ID), "PVMMatrix", m_ActiveCamera->GetPVMatrix() * m_Transform.transform);
+    ShaderLoader::SetUniform1f(std::move(StaticShader::Shaders["ToonOutline"]->ID), "OutlineWidth", 1.5f);
+    ShaderLoader::SetUniform3fv(std::move(StaticShader::Shaders["ToonOutline"]->ID), "Color", glm::vec4(0.0f,0.0f,0.0f,1.0f));
 }
 
 void GameObject::SetCellShadingUniforms()

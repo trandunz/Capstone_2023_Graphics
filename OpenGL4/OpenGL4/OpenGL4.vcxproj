@@ -188,6 +188,7 @@
   <ItemGroup>
     <None Include="Resources\Shaders\BlinnFong3D_CelShaded.frag" />
     <None Include="Resources\Shaders\Normals3D.vert" />
+    <None Include="Resources\Shaders\Normals3D_ToonOutline.vert" />
     <None Include="Resources\Shaders\SingleTexture.vert" />
     <None Include="Resources\Shaders\UnlitColor.frag" />
   </ItemGroup>

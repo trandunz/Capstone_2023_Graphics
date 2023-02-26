@@ -115,3 +115,38 @@ void LightManager::SetMaxSpotLights(int _maxAmount)
 		m_SpotLights.pop_back();
 	}
 }
+
+void LightManager::CaptureMoment(int _lightIndex, KEYMAP& _keyMap)
+{
+
+	for (auto& key : _keyMap)
+	{
+		if (key.second)
+		{
+			if (key.first == GLFW_KEY_UP)
+			{
+				m_PointLights[_lightIndex].Position.z -= 1.0f;
+			}
+			if (key.first == GLFW_KEY_LEFT)
+			{
+				m_PointLights[_lightIndex].Position.x -= 1.0f;
+			}
+			if (key.first == GLFW_KEY_DOWN)
+			{
+				m_PointLights[_lightIndex].Position.z += 1.0f;
+			}
+			if (key.first == GLFW_KEY_RIGHT)
+			{
+				m_PointLights[_lightIndex].Position.x += 1.0f;
+			}
+			if (key.first == GLFW_KEY_Q)
+			{
+				m_PointLights[_lightIndex].Position.y -= 1.0f;
+			}
+			if (key.first == GLFW_KEY_E)
+			{
+				m_PointLights[_lightIndex].Position.y += 1.0f;
+			}
+		}
+	}
+}

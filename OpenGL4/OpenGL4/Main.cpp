@@ -17,7 +17,7 @@ KEYMAP MainKeyInput;
 float DeltaTime = 0.0f, LastFrame = 0.0f;
 
 ImVec4 PointLightColor = ImVec4{1,1,1,1.0f};
-
+bool IsCursorEnabled = false;
 
 GameObject* gameobject01 = nullptr;
 
@@ -64,6 +64,7 @@ void InitGL()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glEnable(GL_STENCIL_TEST);
 }
 
 void InitGLFW()
@@ -80,7 +81,7 @@ void InitGLFW()
 	glfwMakeContextCurrent(renderWindow);
 	glfwSetCursorPosCallback(renderWindow, cursor_position_callback);
 	glfwSetKeyCallback(renderWindow, key_callback);
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
@@ -104,7 +105,6 @@ void ImGUIRender() {
 	ImGui::Begin("Debug Window");
 	
 	ImGui::ColorPicker4("PointLight Color", (float*)&PointLightColor);
-	ImGui::Text("hello world");
 	
 	ImGui::End();
 	ImGui::Render();
@@ -117,6 +117,7 @@ void Start()
 	StaticMesh::Meshes.push_back(new Mesh(SHAPE::SPHERE, GL_CCW));
 	StaticMesh::Meshes.push_back(new Mesh(SHAPE::CUBE, GL_CCW));
 	StaticMesh::Meshes.push_back(new Mesh(SHAPE::PYRAMID, GL_CCW));
+	StaticMesh::Meshes.push_back(new Mesh("Fella.fbx"));
 	StaticMesh::Meshes.push_back(new Mesh("link.obj"));
 
 	//Initalise Camera
@@ -139,14 +140,24 @@ void Start()
 		}
 	, nullptr });
 
+
+
+	StaticShader::Shaders.insert_or_assign("ToonOutline", new Shader{
+		{
+			ShaderInfo{GL_VERTEX_SHADER, "Normals3D_ToonOutline.vert"},
+			ShaderInfo{GL_FRAGMENT_SHADER, "UnlitColor.frag"},
+		}
+	, nullptr });
+
 	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,-1,-9 });
 
+
 	gameobject01->SetMesh(StaticMesh::Meshes[3]);
-	gameobject01->SetScale({ 0.015, 0.015 ,0.015 });
+	gameobject01->SetScale({ 0.5f, 0.5f ,0.5f });
 	gameobject01->SetActiveCamera(*mainCamera);
-	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("T_Skin_D.jpg") });
+	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("Fella_UV.png") });
 	gameobject01->SetLightManager(*lightManager);
-	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"]});
+	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"], *StaticShader::Shaders["ToonOutline"]});
 }
 
 void Update()
@@ -158,7 +169,9 @@ void Update()
 		lightManager->GetPointLights()[0].Color = glm::vec4{ PointLightColor.x, PointLightColor.y,PointLightColor.z, PointLightColor.w };
 		mainCamera->Movement(DeltaTime);
 		gameobject01->Update(DeltaTime);
-		mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
+		
+		if(!IsCursorEnabled)
+			mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
 		
 		glfwPollEvents();
 		Render();
@@ -167,7 +180,7 @@ void Update()
 
 void Render()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	gameobject01->Draw();
 	lightManager->Draw();
@@ -215,6 +228,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	MainKeyInput[key] = action;
 	
+	lightManager->CaptureMoment(0, MainKeyInput);
 	mainCamera->Movement_Capture(MainKeyInput);
 	SwitchInputModes(MainKeyInput);
 }
@@ -230,11 +244,12 @@ void SwitchInputModes(KEYMAP& _keymap)
 				if (glfwGetInputMode(renderWindow, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
 				{
 					glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
+					IsCursorEnabled = true;
 				}
 				else
 				{ 
 					glfwSetInputMode(renderWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					IsCursorEnabled = false;
 				}
 				break;
 

@@ -157,6 +157,14 @@ public:
     /// </summary>
     /// <param name="_maxAmount"></param>
     void SetMaxSpotLights(int _maxAmount = 1);
+
+    /// <summary>
+    /// Capture Moment for PointLight @ _LightIndex
+    /// </summary>
+    /// <param name="_lightIndex"></param>
+    /// <param name="_keyMap"></param>
+    void CaptureMoment(int _lightIndex, KEYMAP& _keyMap);
+
 private:
 
     Camera* m_ActiveCamera{ nullptr };

@@ -158,6 +158,8 @@ public:
 	Transform m_Transform{};
 private:
 
+	void SetToonOutlineUniforms();
+
 	void SetCellShadingUniforms();
 
 	bool m_RimLighting = false;
