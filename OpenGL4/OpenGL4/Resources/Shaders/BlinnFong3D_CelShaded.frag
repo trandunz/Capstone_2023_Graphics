@@ -86,10 +86,6 @@ vec3 ApplyCellShading(vec3 _lighting, vec3 _lightDir)
     {
         return _lighting * 0.6f; 
     }
-    else if (nl > 0.0f)
-    {
-        return _lighting * 0.45f; 
-    }
     else
     {
         return _lighting * 0.35f;

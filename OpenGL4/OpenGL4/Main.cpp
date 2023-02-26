@@ -152,10 +152,10 @@ void Start()
 	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,-1,-9 });
 
 
-	gameobject01->SetMesh(StaticMesh::Meshes[3]);
-	gameobject01->SetScale({ 0.5f, 0.5f ,0.5f });
+	gameobject01->SetMesh(StaticMesh::Meshes[4]);
+	gameobject01->SetScale({ 0.015f, 0.015f ,0.015f });
 	gameobject01->SetActiveCamera(*mainCamera);
-	//gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("Fella_UV.png") });
+	gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("body.png") });
 	gameobject01->SetLightManager(*lightManager);
 	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"], *StaticShader::Shaders["ToonOutline"]});
 }
