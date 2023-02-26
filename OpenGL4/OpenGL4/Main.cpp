@@ -20,6 +20,7 @@ ImVec4 PointLightColor = ImVec4{1,1,1,1.0f};
 bool IsCursorEnabled = false;
 
 GameObject* gameobject01 = nullptr;
+GameObject* gameobject02 = nullptr;
 
 void InitGL();
 void InitGLFW();
@@ -128,7 +129,7 @@ void Start()
 	lightManager->SetLightMesh(StaticMesh::Meshes[0]);
 	lightManager->CreatePointLight(
 		{
-			{1.0f,1.0f,-7.0f},
+			{0.0f,1.0f,-7.0f},
 			{1,1,1},
 
 		});
@@ -149,7 +150,7 @@ void Start()
 		}
 	, nullptr });
 
-	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 0,-1,-9 });
+	gameobject01 = new GameObject(*mainCamera, glm::vec3{ 2,-1,-9 });
 
 
 	gameobject01->SetMesh(StaticMesh::Meshes[4]);
@@ -158,6 +159,17 @@ void Start()
 	gameobject01->SetActiveTextures({ TextureLoader::LoadTexture("body.png") });
 	gameobject01->SetLightManager(*lightManager);
 	gameobject01->SetShaders({ *StaticShader::Shaders["CellShading"], *StaticShader::Shaders["ToonOutline"]});
+
+	gameobject02 = new GameObject(*mainCamera, glm::vec3{ -2,-1,-9 });
+
+
+	gameobject02->SetMesh(StaticMesh::Meshes[4]);
+	gameobject02->SetScale({ 0.015f, 0.015f ,0.015f });
+	gameobject02->SetActiveCamera(*mainCamera);
+	gameobject02->SetActiveTextures({ TextureLoader::LoadTexture("body.png") });
+	gameobject02->SetLightManager(*lightManager);
+	gameobject02->SetShaders({ *StaticShader::Shaders["CellShading"]});
+
 }
 
 void Update()
@@ -169,7 +181,7 @@ void Update()
 		lightManager->GetPointLights()[0].Color = glm::vec4{ PointLightColor.x, PointLightColor.y,PointLightColor.z, PointLightColor.w };
 		mainCamera->Movement(DeltaTime);
 		gameobject01->Update(DeltaTime);
-		
+		gameobject02->Update(DeltaTime);
 		if(!IsCursorEnabled)
 			mainCamera->MouseLook(DeltaTime,Utilities::mousePos);
 		
@@ -183,6 +195,7 @@ void Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	gameobject01->Draw();
+	gameobject02->Draw();
 	lightManager->Draw();
 	ImGUIRender();
 

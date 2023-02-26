@@ -108,31 +108,43 @@ void GameObject::Draw()
         //{
         //    shader.Bind();
         //}
-        
-        //Bind normal Shader
-        //Write to StencilBuffer
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        m_Shaders[0].Bind();
-        // Draw the mesh
-        m_Mesh->Draw();
-        m_Shaders[0].UnBind();
+        if (m_Shaders.size() > 1)
+        {
+            //Bind normal Shader
+            //Write to StencilBuffer
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilMask(0xFF);
+            m_Shaders[0].Bind();
+            // Draw the mesh
+            m_Mesh->Draw();
+            m_Shaders[0].UnBind();
 
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
-        //Bind Second Shader / Single Color Shader
-        m_Shaders[1].Bind();
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+            glStencilMask(0x00);
+            glDisable(GL_DEPTH_TEST);
+            //Bind Second Shader / Single Color Shader
+            m_Shaders[1].Bind();
 
-        m_Mesh->Draw();
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glEnable(GL_DEPTH_TEST);
-        m_Shaders[1].UnBind();
+            m_Mesh->Draw();
+            glStencilMask(0xFF);
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glEnable(GL_DEPTH_TEST);
+            m_Shaders[1].UnBind();
+        }
+        else
+        {
+            m_Shaders[0].Bind();
+            // Draw the mesh
+            m_Mesh->Draw();
+            glUseProgram(0);
+        }
+
 
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        
+       
     }
 }
 
